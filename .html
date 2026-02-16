@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser History Manager Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #f8f9fb;
+            --bg-elevated: #ffffff;
+            --bg-overlay: rgba(255, 255, 255, 0.85);
+            --accent-primary: #2d5bff;
+            --accent-secondary: #7c3aed;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-error: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-subtle: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 50%, #f8faff 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(45, 91, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, 30px) rotate(5deg); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: var(--bg-overlay);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            margin-bottom: 24px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(45, 91, 255, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 2.5;
+        }
+
+        .header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-success);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Input Section */
+        .input-section {
+            position: relative;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 20px 20px 20px 52px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(45, 91, 255, 0.1), var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 20px 32px;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(45, 91, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(45, 91, 255, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 2px solid var(--border-medium);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-base);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .btn-control {
+            padding: 16px 24px;
+        }
+
+        /* Keyboard Shortcuts */
+        .shortcuts {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .shortcuts-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 6px;
+        }
+
+        .key {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-base);
+            border: 1px solid var(--border-medium);
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Messages */
+        .message {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 4px solid;
+            box-shadow: var(--shadow-sm);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+            border-color: var(--accent-success);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-error);
+            border-color: var(--accent-error);
+        }
+
+        .message-info {
+            background: rgba(45, 91, 255, 0.1);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        /* History Display */
+        .history-panel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .history-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .search-box {
+            position: relative;
+            width: 240px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(45, 91, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: var(--bg-base);
+            padding: 18px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: historyItemSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        @keyframes historyItemSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+            border-color: var(--border-medium);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .history-item.current {
+            border-color: var(--accent-primary);
+            background: linear-gradient(90deg, rgba(45, 91, 255, 0.08) 0%, transparent 100%);
+            box-shadow: 0 2px 8px rgba(45, 91, 255, 0.15);
+        }
+
+        .history-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-url {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            word-break: break-all;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .history-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-index {
+            background: var(--bg-elevated);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .current .history-index {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        .current-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Actions */
+        .actions-panel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .actions-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: flex-start;
+            padding: 14px 20px;
+            font-size: 14px;
+        }
+
+        /* Progress Bar */
+        .capacity-bar {
+            margin-top: 16px;
+        }
+
+        .capacity-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-base);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 3px;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Custom Scrollbar */
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+
+            .glass-card {
+                padding: 32px 24px;
+            }
+
+            .header h1 {
+                font-size: 40px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: var(--text-primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+            </div>
+            <h1>Browser History Manager</h1>
+            <p>Professional stack-based navigation system with advanced features</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Current Page</div>
+                    <div class="stat-value" id="currentPosition">0</div>
+                    <div class="stat-change" id="positionChange">● Ready</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Pages</div>
+                    <div class="stat-value" id="totalPages">0</div>
+                    <div class="stat-change">of 100 max</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Usage</div>
+                    <div class="stat-value" id="usagePercent">0%</div>
+                    <div class="capacity-bar">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="messageContainer"></div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <div class="input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="urlInput" 
+                            placeholder="https://example.com"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button class="btn btn-primary" onclick="visitPage()">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <span>Visit Page</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <div class="main-panel">
+                <div class="glass-card" style="padding: 0;">
+                    <div class="history-panel">
+                        <div class="history-header">
+                            <div class="history-title">Navigation History</div>
+                            <div class="search-box">
+                                <div class="search-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <path d="m21 21-4.35-4.35"/>
+                                    </svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    id="searchInput"
+                                    placeholder="Search history..."
+                                    oninput="filterHistory()"
+                                >
+                            </div>
+                        </div>
+                        <div class="history-list" id="historyList">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                        <path d="M2 17l10 5 10-5"/>
+                                        <path d="M2 12l10 5 10-5"/>
+                                    </svg>
+                                </div>
+                                <h3>No History Yet</h3>
+                                <p>Start by visiting your first page above</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="glass-card" style="padding: 0;">
+                    <div class="actions-panel">
+                        <div class="actions-title">Quick Actions</div>
+                        <div class="control-panel">
+                            <button class="btn btn-secondary btn-control" onclick="goBack()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="19" y1="12" x2="5" y2="12"/>
+                                    <polyline points="12 19 5 12 12 5"/>
+                                </svg>
+                                <span>Go Back</span>
+                            </button>
+                            <button class="btn btn-secondary btn-control" onclick="goForward()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                                <span>Go Forward</span>
+                            </button>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-action" onclick="showCurrent()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span>Show Current Page</span>
+                            </button>
+                            <button class="btn btn-secondary btn-action" onclick="exportHistory()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span>Export History</span>
+                            </button>
+                            <button class="btn btn-secondary btn-action" onclick="document.getElementById('importFile').click()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span>Import History</span>
+                            </button>
+                            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importHistory(event)">
+                            <button class="btn btn-secondary btn-action" onclick="clearHistory()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                <span>Clear All History</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="padding: 0;">
+                    <div class="shortcuts">
+                        <div class="shortcuts-title">Keyboard Shortcuts</div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-label">Visit page</div>
+                            <div class="shortcut-keys">
+                                <span class="key">Enter</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-label">Go back</div>
+                            <div class="shortcut-keys">
+                                <span class="key">Alt</span>
+                                <span class="key">←</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-label">Go forward</div>
+                            <div class="shortcut-keys">
+                                <span class="key">Alt</span>
+                                <span class="key">→</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-label">Clear history</div>
+                            <div class="shortcut-keys">
+                                <span class="key">Ctrl</span>
+                                <span class="key">K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MAX_HISTORY = 100;
+        
+        class BrowserHistory {
+            constructor() {
+                this.history = [];
+                this.top = -1;
+            }
+
+            visitPage(url) {
+                if (this.top >= MAX_HISTORY - 1) {
+                    return { success: false, message: "History capacity reached (100 pages maximum)" };
+                }
+                
+                // Remove forward history when visiting new page
+                this.history = this.history.slice(0, this.top + 1);
+                this.history.push({
+                    url: url,
+                    timestamp: new Date().toISOString(),
+                    visits: 1
+                });
+                this.top++;
+                
+                return { success: true, message: `Successfully visited: ${url}` };
+            }
+
+            goBack() {
+                if (this.top <= 0) {
+                    return { success: false, message: "Already at the first page in history" };
+                }
+                
+                this.top--;
+                return { success: true, message: `Navigated back to: ${this.history[this.top].url}` };
+            }
+
+            goForward() {
+                if (this.top >= this.history.length - 1) {
+                    return { success: false, message: "No forward history available" };
+                }
+                
+                this.top++;
+                return { success: true, message: `Navigated forward to: ${this.history[this.top].url}` };
+            }
+
+            currentPage() {
+                if (this.top === -1) {
+                    return { success: false, message: "No pages in history yet" };
+                }
+                
+                return { success: true, message: `Current page: ${this.history[this.top].url}` };
+            }
+
+            getAllHistory() {
+                return this.history;
+            }
+
+            getTop() {
+                return this.top;
+            }
+
+            clear() {
+                this.history = [];
+                this.top = -1;
+            }
+
+            exportData() {
+                return {
+                    history: this.history,
+                    top: this.top,
+                    exportDate: new Date().toISOString()
+                };
+            }
+
+            importData(data) {
+                if (data.history && Array.isArray(data.history)) {
+                    this.history = data.history;
+                    this.top = data.top || this.history.length - 1;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        const browserHistory = new BrowserHistory();
+        let searchQuery = '';
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+            messageDiv.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            
+            messageContainer.innerHTML = '';
+            messageContainer.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) reverse';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 400);
+            }, 4000);
+        }
+
+        function updateDisplay() {
+            const allHistory = browserHistory.getAllHistory();
+            const currentTop = browserHistory.getTop();
+            
+            // Update stats
+            document.getElementById('currentPosition').textContent = currentTop + 1;
+            document.getElementById('totalPages').textContent = allHistory.length;
+            
+            const usagePercent = Math.round((allHistory.length / MAX_HISTORY) * 100);
+            document.getElementById('usagePercent').textContent = usagePercent + '%';
+            document.getElementById('progressFill').style.width = usagePercent + '%';
+            
+            // Update position change indicator
+            const positionChange = document.getElementById('positionChange');
+            if (allHistory.length === 0) {
+                positionChange.textContent = '● Ready';
+                positionChange.style.color = 'var(--text-tertiary)';
+            } else {
+                positionChange.textContent = '● Active';
+                positionChange.style.color = 'var(--accent-success)';
+            }
+            
+            updateHistoryList();
+        }
+
+        function updateHistoryList() {
+            const historyList = document.getElementById('historyList');
+            const allHistory = browserHistory.getAllHistory();
+            const currentTop = browserHistory.getTop();
+            
+            if (allHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3>No History Yet</h3>
+                        <p>Start by visiting your first page above</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            // Filter history based on search
+            const filteredHistory = allHistory.filter((item, index) => {
+                if (!searchQuery) return true;
+                return item.url.toLowerCase().includes(searchQuery.toLowerCase());
+            });
+            
+            if (filteredHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No matches found</h3>
+                        <p>Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display from newest to oldest
+            for (let i = allHistory.length - 1; i >= 0; i--) {
+                // Skip if doesn't match search
+                if (searchQuery && !allHistory[i].url.toLowerCase().includes(searchQuery.toLowerCase())) {
+                    continue;
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'history-item' + (i === currentTop ? ' current' : '');
+                
+                const timeAgo = getTimeAgo(new Date(allHistory[i].timestamp));
+                
+                item.innerHTML = `
+                    <div class="history-content">
+                        <div class="history-url">${allHistory[i].url}</div>
+                        <div class="history-meta">Visited ${timeAgo}</div>
+                    </div>
+                    <div class="history-badge">
+                        ${i === currentTop ? '<div class="current-indicator"></div>' : ''}
+                        <span class="history-index">#${i + 1}</span>
+                    </div>
+                `;
+                
+                item.style.animationDelay = `${(allHistory.length - 1 - i) * 0.03}s`;
+                
+                historyList.appendChild(item);
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        function visitPage() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showMessage('Please enter a valid URL', 'error');
+                urlInput.focus();
+                return;
+            }
+            
+            const result = browserHistory.visitPage(url);
+            
+            if (result.success) {
+                showMessage(result.message, 'success');
+                urlInput.value = '';
+                updateDisplay();
+            } else {
+                showMessage(result.message, 'error');
+            }
+        }
+
+        function goBack() {
+            const result = browserHistory.goBack();
+            showMessage(result.message, result.success ? 'success' : 'error');
+            if (result.success) updateDisplay();
+        }
+
+        function goForward() {
+            const result = browserHistory.goForward();
+            showMessage(result.message, result.success ? 'success' : 'error');
+            if (result.success) updateDisplay();
+        }
+
+        function showCurrent() {
+            const result = browserHistory.currentPage();
+            showMessage(result.message, result.success ? 'info' : 'error');
+        }
+
+        function clearHistory() {
+            if (browserHistory.getAllHistory().length === 0) {
+                showMessage('History is already empty', 'error');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
+                browserHistory.clear();
+                updateDisplay();
+                showMessage('History cleared successfully', 'success');
+            }
+        }
+
+        function exportHistory() {
+            const data = browserHistory.exportData();
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `browser-history-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('History exported successfully', 'success');
+        }
+
+        function importHistory(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (browserHistory.importData(data)) {
+                        updateDisplay();
+                        showMessage('History imported successfully', 'success');
+                    } else {
+                        showMessage('Invalid history file format', 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error reading file: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function filterHistory() {
+            searchQuery = document.getElementById('searchInput').value;
+            updateHistoryList();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt + Left Arrow - Go Back
+            if (e.altKey && e.key === 'ArrowLeft') {
+                e.preventDefault();
+                goBack();
+            }
+            
+            // Alt + Right Arrow - Go Forward
+            if (e.altKey && e.key === 'ArrowRight') {
+                e.preventDefault();
+                goForward();
+            }
+            
+            // Ctrl/Cmd + K - Clear History
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                clearHistory();
+            }
+        });
+
+        // Enter key to submit URL
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                visitPage();
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
